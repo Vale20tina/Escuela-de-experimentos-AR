@@ -1,0 +1,480 @@
+
+<html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
+      <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.5/dist/mindar-image.prod.js"></script>
+      <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.5/dist/mindar-image-aframe.prod.js"></script>
+      <title>Química al Poder! - REALIDAD AUMENTADA</title>
+      <script>
+        const animarElemento = (entity_id, clase, x_inicial, x_final, y_inicial, y_final, z, incremento_positivo, endFunction) => {
+          const elemento = document.querySelector("#" + entity_id + " " + clase);
+          if (!elemento) {
+            return;
+          }
+          //position="-0.3 0.8 0.1"
+          const id = setInterval(() => {
+            if (incremento_positivo){
+              if (y_inicial >= y_final && x_inicial >= x_final) {
+                clearInterval(id);
+                if(endFunction){
+                  endFunction()
+                }
+                return;
+              } else {
+                if (y_inicial < y_final) {
+                  y_inicial += 0.025;
+                }
+                if (x_inicial < x_final) {
+                  x_inicial += 0.025;
+                }
+              }
+            } else {
+              if (y_inicial <= y_final && x_inicial <= x_final) {
+                clearInterval(id);
+                elemento.setAttribute("position", x_final + " " + y_final + " " + z);
+                if(endFunction){
+                  endFunction()
+                }
+                return;
+              } else {
+                if (y_inicial > y_final) {
+                  y_inicial -= 0.025;
+                }
+                if (x_inicial > x_final) {
+                  x_inicial -= 0.025;
+                }
+              }
+            }
+            
+            elemento.setAttribute("position", x_inicial + " " + y_inicial + " " + z);
+          }, 10);
+        }
+
+      const showAvatar = (entity_id) => {
+        console.log("#" + entity_id + " .card_image")
+        const avatar = document.querySelector("#" + entity_id + " .card_image");
+        let y = -0.3;
+        const id = setInterval(() => {
+          y += 0.025;
+          if (y >= 0.495) {
+            clearInterval(id);
+          }
+          if (avatar != null) {
+            avatar.setAttribute("position", "0 " + y + " 0.002");
+
+          }
+        }, 10);
+
+
+        
+      }
+
+      let timersBananas = [];
+
+      AFRAME.registerComponent('trigger-card', {
+        init: function () {
+          this.el.addEventListener('targetFound', event => {
+            console.log("Yea! " + event.target.id)
+            showAvatar(event.target.id);
+
+            let entityId = event.target.id
+
+        //(entity_id, clase, x_inicial, x_final, y_inicial, y_final, z, incremento_positivo)
+        //position="-0.3 0.8 0.1"    
+            animarElemento(entityId, ".globos", -0.55, -0.55, 1.0 , -0.1, 0.008, false)
+        
+        //position="-0.47 -0.26 0.008" 0.0 -0.43
+        var x_intermedia_iman = -1.2
+        const animacionInversaIman = () => {
+          animarElemento(entityId, ".cable", x_intermedia_iman, -0.47, -0.26 , -0.26,  0.008, true)
+        }
+            animarElemento(entityId, ".cable", 0.0, x_intermedia_iman, -0.4 , -0.4, -0.1, false, animacionInversaIman)
+
+          //Animar rotacion iman
+          const rotacionIman = () => {
+            const iman = document.querySelector("#" + "cobalto" + " .iman");
+            let z_iman = -40;
+            //rotation="0 0 40"
+            const id_iman = setInterval(() => {
+              z_iman += 3;
+              if (z_iman >= 120) {
+                clearInterval(id_iman);
+              }
+              iman.setAttribute("rotation", "0 0 " + z_iman);
+              }, 10);
+          }
+
+          const iman = document.querySelector("#" + "cobalto" + " .iman");
+          if(iman) {
+            iman.setAttribute("rotation", "0 0 -40");
+          }
+
+          //position="0.38 0.8 0.008"
+          animarElemento(entityId, ".iman", -0.59, -0.59, -1.5 , -0.3, 0.008, true, rotacionIman)
+
+          //position="-0.54 0.5 0.1"
+          animarElemento(entityId, ".avion", -2, -0.54, -1 , 0.5, 0.1, true)
+
+
+
+          //Animar rotacion bananas
+          const rotacionBananas = () => {
+            const bananas = document.querySelector("#" + "potasio" + " .bananas");
+            let acumularPositivo = true
+            let z_bananas = -40;
+            //rotation="0 0 40"
+            
+              var intervaloId = setInterval(() => {
+              
+              if(acumularPositivo) {
+                z_bananas += 5;
+                if (z_bananas >= 40) {
+                  acumularPositivo = false
+                }
+              } else {
+                z_bananas -= 5;
+                if (z_bananas <= -40) {
+                  acumularPositivo = true
+                }
+              }
+              
+              bananas.setAttribute("rotation", "0 0 " + z_bananas);
+              }, 100);
+
+              timersBananas.push(intervaloId);
+
+              setTimeout(function() {
+                for (timer in timersBananas){
+                  clearInterval(timersBananas[timer]);
+                }
+              }, 4000);
+          }
+
+          const bananas = document.querySelector("#" + "potasio" + " .bananas");
+          if(bananas) {
+            bananas.setAttribute("rotation", "0 0 -40");
+          }
+
+          for (timer in timersBananas){
+            clearInterval(timersBananas[timer]);
+          }
+
+          //position="0.34 0.25 0.008"
+          animarElemento(entityId, ".bananas", 0.59, 0.59, 0.6 , -0.3, 0.008, false, rotacionBananas)
+
+          //position="-0.57 -0.23 0.008"
+          animarElemento(entityId, ".conchamar", -0.57, -0.57, -0.9 , -0.23, 0.008, true)
+
+          
+          
+          const cambiarTamanoElemento = (elemento, tamano_inicial, tamano_final, resolve_promesa) => {
+            var tamano = tamano_inicial
+            const interval_elemento = setInterval(() => {
+                if (tamano_inicial <= tamano_final) {
+                  if (tamano >= tamano_final) {
+                    clearInterval(interval_elemento);
+                    if(resolve_promesa) {
+                      resolve_promesa()
+                    }
+                  } else {
+                    tamano += 0.005
+                  }
+                } else {
+                  if (tamano <= tamano_final) {
+                    clearInterval(interval_elemento);
+                    if(resolve_promesa) {
+                      resolve_promesa()
+                    }
+                  } else {
+                    tamano -= 0.005
+                  }
+                }
+                
+            
+                elemento.setAttribute("width", tamano);
+                elemento.setAttribute("height", tamano);
+              }, 5);
+
+          }
+
+
+            //Animacion agrandar lamparita
+            const lamparita = document.querySelector("#argon .lamparita");
+
+
+            if (lamparita){
+              var paso_0_1 = () => {
+                return new Promise((resolve, reject) => {
+                  cambiarTamanoElemento(lamparita, 0.01, 0.7, resolve)
+                })
+              }
+
+              const paso_1_2 = () => {
+                return new Promise((resolve, reject) => {
+                  cambiarTamanoElemento(lamparita, 0.7, 0.5, resolve)
+                })
+              }
+
+              const paso_2_3 = () => {
+                return new Promise((resolve, reject) => {
+                  cambiarTamanoElemento(lamparita, 0.5, 0.6, resolve)
+                })
+              }
+
+              paso_0_1()
+                .then(() => paso_1_2())
+                .then(() => paso_2_3())
+
+
+              
+            }
+
+          
+
+
+          });
+        }
+      });
+    </script>
+    </head>
+    <body>
+      
+      <a-scene id="mainScene" mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.001; filterBeta: 0.09" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        
+        <!-- COBRE -->
+        <a-entity 
+            mindar-image-target="targetIndex: 4"
+            id="cobre"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image class="cable" src="elements/Cobre.png" position="-0.47 -0.26 -0.1" width="0.72" height="0.72" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Cobre.png" position="0.03 -0.43 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.7" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <a-text geometry="primitive: plane; width: 1.0; height: 0.02"
+            wrap-count="50" scale="0.24 0.2 0.2" value="El cobre es un metal de transición que juega un papel crucial en diversas aplicaciones industriales y tecnológicas. Posee propiedades conductoras excepcionales, lo que lo convierte en un material fundamental para la fabricación de cables eléctricos y componentes electrónicos." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.64 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+        <!-- LITIO -->
+        <a-entity 
+            mindar-image-target="targetIndex: 6"
+            id="litio"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image src="elements/Litio.png" position="-0.3 0.8 0.1" width="0.7" height="0.7" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="35" scale="0.5 0.5 0.2" value="Litio" font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="-0.2 0.0 0.01" color="black" material="transparent: true"></a-text>
+
+            <a-image class="titulo" src="elements/titles/Litio.png" position="0.03 -0.43 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.7" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="
+            El litio es un metal alcalino que desempeña un papel fundamental en diversas aplicaciones industriales y tecnológicas. Sus propiedades únicas lo convierten en un elemento esencial para la fabricación de baterías recargables y dispositivos electrónicos. Gracias a su capacidad para almacenar y liberar energía de manera eficiente, el litio se ha convertido en un componente clave en la industria de la energía portátil, alimentando desde teléfonos móviles hasta vehículos eléctricos." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.64 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+
+        <!-- HELIO -->
+        <a-entity 
+            mindar-image-target="targetIndex: 5"
+            id="helio"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image class="globos" src="./elements/Helio.png" position="-0.3 0.8 0.1" width="0.7" height="0.7" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="./elements/titles/Helio.png" position="0.03 -0.43 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="./elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="El helio es un gas noble sin color, olor ni sabor. Los cohetes y globos sonda a menudo utilizan helio debido a su baja densidad y su capacidad para proporcionar sustentación. El helio también es usado en los globos en eventos y fiestas." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.71 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+
+        <!-- COBALTO -->
+        <a-entity 
+            mindar-image-target="targetIndex: 3"
+            id="cobalto"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen tres bolas (1_1.png) -->
+            <a-image class="iman" src="elements/Cobalto.png" position="0.38 0.8 0.008" rotation="0 0 -40" width="0.7" height="0.7" transparent="true" material="alpha-test:0.5"></a-image>
+
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Cobalto.png" position="0.03 -0.43 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="Este elemento químico desempeña roles cruciales en varios campos, desde aplicaciones industriales hasta avances médicos. El cobalto es conocido por su participación en la fabricación de superaleaciones, que son materiales resistentes a altas temperaturas y extremadamente duraderos." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.7 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+
+        <!-- POTASIO -->
+        <a-entity 
+            mindar-image-target="targetIndex: 8"
+            id="potasio"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <a-image class="bananas" src="elements/Potasio.png" position="0.34 0.25 0.008" rotation="0 0 40" width="0.6" height="0.6" transparent="true" material="alpha-test:0.5"></a-image>
+            
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Potasio.png" position="0.03 -0.4 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="El potasio es un metal alcalino esencial para la vida. En la agricultura,las plantas lo utilizan para regular procesos de crecimiento, desarrollo y resistencia a enfermedades. En el cuerpo humano, el potasio desempeña un papel vital en la regulación de la presión arterial, el equilibrio de líquidos y la transmisión de impulsos nerviosos." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.71 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+
+        <!-- MERCURIO -->
+        <a-entity 
+            mindar-image-target="targetIndex: 7"
+            id="mercurio"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image class="termometro" src="elements/Mercurio.png" position="0.63 -0.8 0.1" width="0.6" height="0.6" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Mercurio.png" position="0.03 -0.43 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="El mercurio es un metal líquido de color plateado, notable por su peculiaridad de permanecer en estado líquido a temperatura ambiente. Los termómetros, barómetros y manómetros utilizan mercurio debido a su expansión uniforme y predecible con cambios de temperatura y presión." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.71 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+        <!-- ALUMINIO -->
+        <a-entity 
+            mindar-image-target="targetIndex: 0"
+            id="aluminio"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image class="avion" src="elements/Aluminio.png" position="-0.54 0.5 0.1" width="0.9" height="0.9" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Aluminio.png" position="0.03 -0.37 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="El aluminio es un metal ligero y versátil conocido por su característico color plateado y su capacidad para resistir la corrosión. Su baja densidad y alta resistencia hacen que sea un componente esencial en la construcción de aeronaves y vehículos, contribuyendo a la reducción de peso y mejorando la eficiencia del combustible." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.71 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+        <!-- ARGON -->
+        <a-entity 
+            mindar-image-target="targetIndex: 1"
+            id="argon"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image class="lamparita" src="elements/Argon.png" position="-0.5 -0.23 0.008" rotation="0 0 8" width="0.01" height="0.01" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Argon.png" position="0.03 -0.4 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="El argón es un gas noble incoloro, inodoro e insípido que se encuentra en pequeñas cantidades en la atmósfera terrestre. Se emplea en la iluminación de lámparas incandescentes y en la fabricación de láseres. En las lámparas, actúa como gas de relleno, prolongando la vida útil del filamento y mejorando la eficiencia lumínica." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.71 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+
+        <!-- CALCIO -->
+        <a-entity 
+            mindar-image-target="targetIndex: 2"
+            id="calcio"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image class="conchamar" src="elements/Calcio.png" position="-0.57 -0.23 0.008" width="0.65" height="0.65" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Calcio.png" position="0.03 -0.4 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrapCount="50" scale="0.24 0.2 0.2" value="El calcio es un metal alcalinotérreo de color plateado y brillo metálico, que se caracteriza por ser un elemento esencial para la vida en la Tierra. El calcio está asociado comúnmente con las conchas de mar debido a que las conchas y esqueletos de muchos organismos marinos están compuestos principalmente de carbonato de calcio." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.71 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
+        
+      </a-scene>
+
+
+
+
+
+     
+    </body>
+  </html>
+
