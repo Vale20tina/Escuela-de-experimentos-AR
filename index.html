@@ -351,6 +351,28 @@
         </a-entity>
 
         <!-- ARGON -->
+        <a-entity 
+            mindar-image-target="targetIndex: 1"
+            id="argon"
+            trigger-card
+            position="0 0 0.5" 
+            geometry="primitive: plane; width: 1; height: 0.9" 
+            material="color: #red; shader: msdf; transparent: true; opacity: 0.0" class="raycastable">
+
+            <!-- imagen caracteristica del elemento (iman, etc.) -->
+            <a-image class="lamparita" src="elements/Argon.png" position="-0.5 -0.23 0.008" rotation="0 0 8" width="0.01" height="0.01" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Titulo de elemento quimico -->
+            <a-image class="titulo" src="elements/titles/Argon.png" position="0.03 -0.4 0.01" width="0.61" height="0.23" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Fondo -->
+            <a-image class="background" src="elements/rectangulo_blanco.png" position="0.0 -0.64 -0.03" width="1.4" height="0.82" transparent="true" material="alpha-test:0.5"></a-image>
+
+            <!-- Texto explicativo elemento quimico -->
+            <a-text geometry="primitive: plane; width: 0.02; height: 0.02"
+            wrap-count="30" scale="0.2 0.2 0.2" value="El argón es un gas noble incoloro, inodoro e insípido. Se emplea en las lámparas incandescentes y en la fabricación de láseres." font="assets/SpaceGrotesk-Regular-msdf.json" font-image="assets/SpaceGrotesk-Regular.png" negate="false" position="0.01 -0.68 0.01" color="black" material="transparent: true" align="center"></a-text>
+
+        </a-entity>
         
         <!-- CALCIO -->
         
